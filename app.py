@@ -30,5 +30,17 @@ def query():
     return f"you are on Query Page --- name : {name} | age : {age}"
 
 
+@app.route('/formData', methods=['POST', 'GET'])
+def formData():
+    if (request.method == 'POST'):
+        name = request.form['name']
+        return f'name : {name}'
+
+    return '''<form method="POST">
+    <input type="text" name="name">
+    <input type="submit">
+    </form>
+    '''
+
 if __name__ == "__main__":
     app.run(debug=True)
