@@ -1,6 +1,8 @@
-from flask import Flask, jsonify, request, url_for, redirect
+from flask import Flask, jsonify, request, url_for, redirect, session
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
+app.config['SECRET_KEY'] = 'xtc2ORKM0eKKmYDoP9ntfauVfu4RqfPE'
 
 
 @app.route('/')
@@ -11,14 +13,17 @@ def index():
 @app.route('/helloName', methods=['POST', 'GET'], defaults={'name': 'NAME', 'age': 0})
 @app.route('/helloName/<string:name>/<int:age>', methods=['POST', 'GET'])
 def helloName(name, age):
+    session['name'] = name
     return f'<h1>Hello {name} , you are {age} years old</h1>'
 
 
 @app.route('/json')
 def json():
+    name = session['name']
     response = {
         'key': 1,
-        'value': ['Soufiane', 'Man']
+        'value': ['Soufiane', 'Man'],
+        'name': name
     }
     return jsonify(response)
 
@@ -49,5 +54,7 @@ def processjson():
     username = data['username']
     password = data['password']
     return jsonify({'results': 'Success', 'username': username, 'password': password})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
