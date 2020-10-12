@@ -8,7 +8,7 @@ def index():
     return '<h1>Hello</h1>'
 
 
-@app.route('/<name>')
+@app.route('/<name>', methods=['POST', 'GET'])
 def helloName(name):
     return f'<h1>Hello {name}</h1>'
 
