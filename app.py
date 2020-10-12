@@ -35,12 +35,18 @@ def formData():
     if (request.method == 'POST'):
         name = request.form['name']
         return f'name : {name}'
-
     return '''<form method="POST">
     <input type="text" name="name">
     <input type="submit">
     </form>
     '''
 
+
+@app.route('/processjson', methods=['POST'])
+def processjson():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    return jsonify({'results': 'Success', 'username': username, 'password': password})
 if __name__ == "__main__":
     app.run(debug=True)
