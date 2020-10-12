@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, url_for, redirect
 
 app = Flask(__name__)
 
@@ -34,7 +34,8 @@ def query():
 def formData():
     if (request.method == 'POST'):
         name = request.form['name']
-        return f'name : {name}'
+        # return f'name : {name}'
+        return redirect(url_for('helloName', name=name, age=12))
     return '''<form method="POST">
     <input type="text" name="name">
     <input type="submit">
