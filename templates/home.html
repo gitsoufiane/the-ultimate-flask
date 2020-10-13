@@ -1,0 +1,17 @@
+{%extends 'base/master.html'%}
+{%block content%}
+{{super()}}
+<h1 class="HomeHeader">Home</h1>
+{%include 'base/toInclude.html'%}
+<p>Welcome to Home Page</p>
+{%if display%}
+<p>Age : {{age}}</p>
+{%else%}
+<p>Age is not Displayed</p>
+{%endif%}
+<ul>
+    {%for lst in myList%}
+    <li>{{lst}}</li>
+    {%endfor%}
+</ul>
+{%endblock%}
