@@ -1,8 +1,27 @@
-from flask import Flask, jsonify, request, url_for, redirect, session, render_template
+from flask import Flask, jsonify, request, url_for, redirect, session, render_template, g
+import sqlite3
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'xtc2ORKM0eKKmYDoP9ntfauVfu4RqfPE'
+
+
+def connect_db():
+    sql = sqlite3.connect('./data.db')
+    sql.row_factory = sqlite3.Row
+    return sql
+
+
+def get_db():
+    if not hasattr(g, 'sqlite3'):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
 
 @app.route('/')
@@ -39,7 +58,12 @@ def query():
 def formData():
     if (request.method == 'POST'):
         name = request.form['name']
+        location = request.form['location']
         # return f'name : {name}'
+        db = get_db()
+        db.execute('insert into users (name, location) values (?,?)', [
+                   name, location])
+        db.commit()
         return redirect(url_for('helloName', name=name, age=12))
     return render_template('form.html')
 
@@ -51,6 +75,16 @@ def processjson():
     password = data['password']
     return jsonify({'results': 'Success', 'username': username, 'password': password})
 
+
+@app.route('/sqlresults')
+def sqlresults():
+    db = get_db()
+    cursor = db.execute('select * from users')
+    results = cursor.fetchall()
+    data = []
+    for row in results:
+        data.append(list(row))
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run(debug=True)
