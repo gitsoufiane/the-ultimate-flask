@@ -27,9 +27,6 @@ def get_current_user():
 
 @app.route('/')
 def index():
-    # user = None
-    # if 'user' in session:
-    #     user = session['user']
     user = get_current_user()
     return render_template('home.html', user=user)
 
@@ -79,22 +76,46 @@ def question():
     return render_template('question.html', user=user)
 
 
-@ app.route('/answer')
-def answer():
+@ app.route('/answer/<question_id>', methods=['POST', 'GET'])
+def answer(question_id):
     user = get_current_user()
-    return render_template('answer.html', user=user)
+    db = get_db()
+    question_cur = db.execute(
+        'select id,question_text from questions where id = ?', [question_id])
+    question_result = question_cur.fetchone()
+    if request.method == 'POST':
+        answer = request.form['answer']
+        db.execute('update questions set answer_text=? where id=?',
+                   [answer, question_id])
+        db.commit()
+        return redirect(url_for('unanswered'))
+    return render_template('answer.html', user=user, question=question_result)
 
 
-@ app.route('/ask')
+@ app.route('/ask', methods=['POST', 'GET'])
 def ask():
     user = get_current_user()
-    return render_template('ask.html', user=user)
+    db = get_db()
+    if request.method == 'POST':
+        question_text = request.form['question']
+        expert_id = request.form['expert']
+        db.execute('insert into questions (question_text,asked_by_id,expert_id) values (?,?,?)', [
+                   question_text, user['id'], expert_id])
+        db.commit()
+        return redirect(url_for('ask'))
+    expert_cur = db.execute('select id,name from users where expert=1')
+    expert_results = expert_cur.fetchall()
+    return render_template('ask.html', user=user, experts=expert_results)
 
 
 @ app.route('/unanswered')
 def unanswered():
     user = get_current_user()
-    return render_template('unanswered.html', user=user)
+    db = get_db()
+    unanswered_cur = db.execute(
+        'select questions.id,questions.question_text,users.name from questions join users on users.id = questions.asked_by_id where questions.answer_text is NULL and questions.expert_id=?', [user['id']])
+    unanswered_results = unanswered_cur.fetchall()
+    return render_template('unanswered.html', user=user, questions=unanswered_results)
 
 
 @ app.route('/users')
