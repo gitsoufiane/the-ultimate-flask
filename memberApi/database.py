@@ -3,7 +3,7 @@ import sqlite3
 
 
 def connect_db():
-    sql = sqlite3.connect('./memberapi.db')
+    sql = sqlite3.connect('./members.db')
     sql.row_factory = sqlite3.Row
     return sql
 
